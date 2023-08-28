@@ -62,7 +62,7 @@ RUN pip install --no-cache-dir --upgrade gradio
 RUN echo '#!/bin/bash' > /opt/startup.sh && \\
     echo 'python -u -m {'vllm.entrypoints.api_server' if api_format!='openai' else 'vllm.entrypoints.openai.api_server'} --model {model} --tokenizer {tokenizor} --host 0.0.0.0 --port 8000 2>&1 | tee api_server.log &' >> /opt/startup.sh && \\
     echo 'while ! `cat api_server.log | grep -q "Uvicorn running on"`; do sleep 1; done' >> /opt/startup.sh && \\
-    echo 'python vllm/examples/gradio_webserver.py --host 0.0.0.0 --port 8001 2>&1 | tee gradio_server.log' >> /opt/startup.sh && \\
+    echo 'python vllm/examples/gradio_webserver.py --host 0.0.0.0 --port 8001 2>&1 {"--model-url http://localhost:8000/v1/completions" if api_format=="openai" else ""} | tee gradio_server.log' >> /opt/startup.sh && \\
     chmod +x /opt/startup.sh
 
 # Start the startup script when the container starts

@@ -1,5 +1,5 @@
 import argparse
-def create_vllm_dockerfile(model, tokenizor, api_format):
+def create_vllm_dockerfile(model, tokenizer, api_format):
     dockerfile = f"""
 FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04
 ENV DEBIAN_FRONTEND=noninteractive
@@ -60,7 +60,7 @@ RUN pip install --no-cache-dir --upgrade gradio
 # Start vllm api server and Gradio server
 # Create a startup script
 RUN echo '#!/bin/bash' > /opt/startup.sh && \\
-    echo 'python -u -m {'vllm.entrypoints.api_server' if api_format!='openai' else 'vllm.entrypoints.openai.api_server'} --model {model} --tokenizer {tokenizor} --host 0.0.0.0 --port 8000 2>&1 | tee api_server.log &' >> /opt/startup.sh && \\
+    echo 'python -u -m {'vllm.entrypoints.api_server' if api_format!='openai' else 'vllm.entrypoints.openai.api_server'} --model {model} --tokenizer {tokenizer} --host 0.0.0.0 --port 8000 2>&1 | tee api_server.log &' >> /opt/startup.sh && \\
     echo 'while ! `cat api_server.log | grep -q "Uvicorn running on"`; do sleep 1; done' >> /opt/startup.sh && \\
     echo 'python vllm/examples/gradio_webserver.py --host 0.0.0.0 --port 8001 2>&1 {"--model-url http://localhost:8000/v1/completions" if api_format=="openai" else ""} | tee gradio_server.log' >> /opt/startup.sh && \\
     chmod +x /opt/startup.sh

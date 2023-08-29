@@ -89,7 +89,7 @@ if __name__ == "__main__":
     model = args.model
     tokenizer = args.tokenizer
     api_format = args.api_format
-    create_vllm_dockerfile(model, tokenizor, api_format)
+    create_vllm_dockerfile(model, tokenizer, api_format)
   
 
   
